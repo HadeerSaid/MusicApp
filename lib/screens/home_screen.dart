@@ -1,5 +1,7 @@
 //import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:musicapp2/main.dart';
 import 'package:musicapp2/widgets/section_header.dart';
 import 'package:musicapp2/widgets/Song_card.dart';
@@ -8,135 +10,118 @@ import 'package:musicapp2/models/playlist_model.dart';
 import 'package:musicapp2/widgets/widgets.dart';
 import '../widgets/playlist_card.dart';
 import 'package:musicapp2/widgets/playlist_card.dart';
-class HomeScreen extends StatelessWidget{
-  const HomeScreen({Key? key}): super(key:key);
+import 'package:rxdart/rxdart.dart' as rxdart;
 
-  //get song => null;
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context){
-    List<Song> songs= Song.song;
-    List<Playlist>playlists=Playlist.playlists;
-    return
-      Container(
-        decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Colors.deepPurple.shade800.withOpacity(0.8),
-                Colors.deepPurple.shade200.withOpacity(0.8),
-              ],
-            )
-        ),
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          appBar: const _CustomAppBar(),
-          bottomNavigationBar: const _CustomNavBar(),
-              body: SingleChildScrollView(
-            child: Column(
-              children: [
-                const _DiscoverMusic(),
-                _TrendingMusic(songs: songs),
-                Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    children: [SectionHeader(title: 'Playlist'),
-                    ListView.builder(
-                      shrinkWrap: true,
-                      padding: const EdgeInsets.only(top: 20),
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: playlists.length,
-                        itemBuilder: ((context,index){
-                          return PlaylistCard(playlists: playlists[index]);
+  Widget build(BuildContext context) {
+    List<Song> songs = Song.song;
+    List<Playlist> playlists = Playlist.playlists;
 
-              }
-              )),
-                    ],
-                  ),
-                )
-              ],
-            ),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.deepPurple.shade800.withOpacity(0.8),
+            Colors.deepPurple.shade200.withOpacity(0.8),
+          ],
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: const _CustomAppBar(),
+        bottomNavigationBar: const _CustomNavBar(),
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              const _DiscoverMusic(),
+              _TrendingMusic(songs: songs),
+              _PlaylistMusic(playlists: playlists),
+            ],
           ),
         ),
-      );
+      ),
+    );
   }
 }
 
+class _PlaylistMusic extends StatelessWidget {
+  const _PlaylistMusic({
+    Key? key,
+    required this.playlists,
+  }) : super(key: key);
+
+  final List<Playlist> playlists;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Column(
+        children: [
+          const SectionHeader(title: 'Playlists'),
+          ListView.builder(
+            shrinkWrap: true,
+            padding: const EdgeInsets.only(top: 20),
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: playlists.length,
+            itemBuilder: ((context, index) {
+              return PlaylistCard(playlists: playlists[index],);
+            }),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 class _TrendingMusic extends StatelessWidget {
   const _TrendingMusic({
-    super.key,
+    Key? key,
     required this.songs,
-  });
+  }) : super(key: key);
 
   final List<Song> songs;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 20.0,
-      top: 20.0,
-      bottom: 20.0,),
+      padding: const EdgeInsets.only(
+        left: 20.0,
+        top: 20.0,
+        bottom: 20.0,
+      ),
       child: Column(
-        children:[
+        children: [
           const Padding(
-            padding: const EdgeInsets.only(right: 20.0,
-            ),
-            child: SectionHeader(title : 'Trending Music'),
+            padding: EdgeInsets.only(right: 20.0),
+            child: SectionHeader(title: 'Trending Music'),
           ),
           const SizedBox(height: 20),
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.27,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-                itemCount: songs.length,
-                itemBuilder: (context,index){
+              itemCount: songs.length,
+              itemBuilder: (context, index) {
                 return SongCard(song: songs[index]);
-                },
+              },
+            ),
           ),
-          ),
-    ],
+        ],
       ),
     );
   }
 }
 
-
-class SectionHeader extends StatelessWidget {
-
-  const SectionHeader({
-    Key? Key,
-    required this.title,
-    this.action='view more',
-  });
-  final String title;
-  final String action;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      Text(title,
-      style: Theme.of(context).textTheme.headline6!.copyWith(
-        color: Colors.white,
-        fontWeight: FontWeight.bold,
-      ),),
-      Text(action,
-      style: Theme.of(context)
-      .textTheme
-      .bodyLarge!
-      .copyWith(color: Colors.white)),
-    ],
-                  );
-  }
-}
-
 class _DiscoverMusic extends StatelessWidget {
   const _DiscoverMusic({
-    super.key,
-  });
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -145,11 +130,13 @@ class _DiscoverMusic extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Welcome',
+          Text(
+            'Welcome',
             style: Theme.of(context).textTheme.bodyLarge,
           ),
           const SizedBox(height: 5),
-          Text('enjoy your favourite music',
+          Text(
+            'Enjoy your favorite music',
             style: Theme.of(context)
                 .textTheme
                 .headline6!
@@ -163,16 +150,16 @@ class _DiscoverMusic extends StatelessWidget {
               fillColor: Colors.white,
               hintText: 'Search',
               hintStyle: Theme.of(context)
-                  .textTheme.bodyMedium!
+                  .textTheme
+                  .bodyMedium!
                   .copyWith(color: Colors.grey.shade400),
-              prefixIcon:
-                Icon(Icons.search, color: Colors.grey.shade400),
+              prefixIcon: Icon(Icons.search, color: Colors.grey.shade400),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(15.0),
                 borderSide: BorderSide.none,
-              )
+              ),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -181,8 +168,8 @@ class _DiscoverMusic extends StatelessWidget {
 
 class _CustomNavBar extends StatelessWidget {
   const _CustomNavBar({
-    super.key,
-  });
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -193,25 +180,32 @@ class _CustomNavBar extends StatelessWidget {
       selectedItemColor: Colors.white,
       showUnselectedLabels: false,
       showSelectedLabels: false,
-        items:const[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label:'Home'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite_outline),
-            label:'Favourites'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.play_circle_outline),
-            label:'play'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.people_outline),
-            label:'profile'),],);
+      items: const [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home),
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.favorite_outline),
+          label: 'Favorites',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.play_circle_outline),
+          label: 'Play',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.people_outline),
+          label: 'Profile',
+        ),
+      ],
+    );
   }
 }
-class _CustomAppBar extends StatelessWidget implements PreferredSizeWidget{
-// class _CustomAppBar extends StatefulWidget {
+
+class _CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const _CustomAppBar({
-    Key? Key,}) : super (key:Key);
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -223,16 +217,15 @@ class _CustomAppBar extends StatelessWidget implements PreferredSizeWidget{
         Container(
           margin: const EdgeInsets.only(right: 20),
           child: const CircleAvatar(
-            backgroundImage: AssetImage(
-                'assets/images/76285a03af77ba88ec188d90f0ff4c79.jpg'
+            backgroundImage: NetworkImage(
+              'https://images.unsplash.com/photo-1659025435463-a039676b45a0?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1287&q=80',
             ),
           ),
-        )
+        ),
       ],
     );
-
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => const Size.fromHeight(56.0);
 }
